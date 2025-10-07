@@ -13,7 +13,7 @@ import { User } from './types/User';
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filteredTodos, setFilteredTodos] = useState<Todo[]>([]);
-  // eslint-disable-next-line prettier/prettier
+  // prettier-ignore
   const [filterStatus, setFilterStatus] = useState<
   'all' | 'completed' | 'active'
   >('all');
