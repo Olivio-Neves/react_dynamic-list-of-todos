@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import 'bulma/css/bulma.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 
@@ -23,6 +23,10 @@ export const App: React.FC = () => {
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
   const [user, setUser] = useState<User | null>(null);
 
+  // Ref para controlar cancelamento de fetch de usuário
+  const cancelFetchUser = useRef(false);
+
+  // Fetch todos
   useEffect(() => {
     setLoadingTodos(true);
     getTodos()
@@ -30,6 +34,7 @@ export const App: React.FC = () => {
       .finally(() => setLoadingTodos(false));
   }, []);
 
+  // Filter todos
   useEffect(() => {
     let result = [...todos];
 
@@ -53,14 +58,29 @@ export const App: React.FC = () => {
   const showTodo = (todo: Todo) => {
     setSelectedTodo(todo);
     setLoadingUser(true);
+
+    cancelFetchUser.current = false; // reset flag
+
     getUser(todo.userId)
-      .then(data => setUser(data))
-      .finally(() => setLoadingUser(false));
+      .then(data => {
+        if (!cancelFetchUser.current) {
+          setUser(data);
+        }
+      })
+      .finally(() => {
+        if (!cancelFetchUser.current) {
+          setLoadingUser(false);
+        }
+      });
   };
 
   const closeModal = () => {
+    // Sinaliza para ignorar resultados de fetch pendentes
+    cancelFetchUser.current = true;
+
     setSelectedTodo(null);
     setUser(null);
+    setLoadingUser(false);
   };
 
   return (
